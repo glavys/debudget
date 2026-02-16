@@ -2,108 +2,177 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <title>DeBudget</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="page">
-      <header class="hero">
-        <div class="brand">
-          <h1>DeBudget</h1>
+    <div class="app">
+      <!-- ── Navigation ── -->
+      <nav class="nav">
+        <div class="nav-inner">
+          <button class="nav-tab active" data-tab="add">Добавить</button>
+          <button class="nav-tab" data-tab="history">История</button>
+          <button class="nav-tab" data-tab="stats">Статистика</button>
         </div>
-        <div class="hero-actions">
-          <button id="exportBtn" class="ghost" type="button">Экспорт</button>
+      </nav>
+
+      <!-- ══════════════ TAB: Добавить ══════════════ -->
+      <div class="page tab-content active" id="tab-add">
+        <header class="hero">
+          <div class="brand"><h1>DeBudget</h1></div>
+          <div class="hero-actions">
+            <button id="exportBtn" class="ghost" type="button">Экспорт</button>
+          </div>
+        </header>
+
+        <div class="grid">
+          <section class="card">
+            <h2>Общие расходы</h2>
+            <form id="generalForm" class="form">
+              <label>
+                Дата
+                <input type="date" id="generalDate" required />
+              </label>
+              <label>
+                Сумма
+                <input type="number" id="generalAmount" step="1" min="0" placeholder="0" required />
+                <div class="quick-amount" data-target="generalAmount">
+                  <button type="button" data-amount="100">+100</button>
+                  <button type="button" data-amount="500">+500</button>
+                  <button type="button" data-amount="1000">+1000</button>
+                </div>
+              </label>
+              <label>
+                Категория
+                <select id="generalCategory" required>
+                  <option value="">Выберите</option>
+                  <option>Продукты</option>
+                  <option>Еда</option>
+                  <option>Транспорт</option>
+                  <option>Машина</option>
+                  <option>Дом</option>
+                  <option>Подарки</option>
+                  <option>Здоровье</option>
+                  <option>Развлечения</option>
+                  <option>Подписки</option>
+                  <option>Другое</option>
+                </select>
+              </label>
+              <label>
+                Комментарий
+                <input type="text" id="generalNote" placeholder="Необязательно" />
+              </label>
+              <button type="submit" class="primary">Добавить</button>
+              <p class="hint" id="generalStatus"></p>
+            </form>
+          </section>
+
+          <section class="card">
+            <h2>Авто</h2>
+            <form id="carForm" class="form">
+              <label>
+                Дата
+                <input type="date" id="carDate" required />
+              </label>
+              <label>
+                Категория
+                <select id="carCategory" required>
+                  <option value="">Выберите</option>
+                  <option>Топливо</option>
+                  <option>ТО</option>
+                  <option>Ремонт</option>
+                  <option>Запчасти</option>
+                  <option>Страховка</option>
+                  <option>Мойка</option>
+                  <option>Диагностика</option>
+                  <option>Расходники</option>
+                  <option>Штрафы</option>
+                  <option>Прочее</option>
+                </select>
+              </label>
+              <label>
+                Комментарий
+                <input type="text" id="carDescription" placeholder="Необязательно" />
+              </label>
+              <label>
+                Сумма
+                <input type="number" id="carAmount" step="1" min="0" placeholder="0" required />
+                <div class="quick-amount" data-target="carAmount">
+                  <button type="button" data-amount="100">+100</button>
+                  <button type="button" data-amount="500">+500</button>
+                  <button type="button" data-amount="1000">+1000</button>
+                </div>
+              </label>
+              <button type="submit" class="primary">Добавить</button>
+              <p class="hint" id="carStatus"></p>
+            </form>
+          </section>
         </div>
-      </header>
+      </div>
 
-      <div class="grid">
-        <section class="card">
-          <h2>Общие</h2>
-          <form id="generalForm" class="form">
-            <label>
-              Дата
-              <input type="date" id="generalDate" required />
-            </label>
-            <label>
-              Сумма
-              <input type="number" id="generalAmount" step="1" min="0" required />
-              <div class="quick-amount" data-target="generalAmount">
-                <button type="button" data-amount="100">+100</button>
-                <button type="button" data-amount="500">+500</button>
-                <button type="button" data-amount="1000">+1000</button>
-              </div>
-            </label>
-            <label>
-              Категория
-              <select id="generalCategory" required>
-                <option value="">Выберите</option>
-                <option>Продукты</option>
-                <option>Еда</option>
-                <option>Транспорт</option>
-                <option>Машина</option>
-                <option>Дом</option>
-                <option>Подарки</option>
-                <option>Здоровье</option>
-                <option>Развлечения</option>
-                <option>Подписки</option>
-                <option>Другое</option>
-              </select>
-            </label>
-            <label>
-              Комментарий
-              <input type="text" id="generalNote" />
-            </label>
-            <button type="submit" class="primary">Добавить</button>
-            <p class="hint" id="generalStatus"></p>
-          </form>
-        </section>
+      <!-- ══════════════ TAB: История ══════════════ -->
+      <div class="page tab-content" id="tab-history">
+        <div class="history-header">
+          <h1>История расходов</h1>
+          <select id="historyFilter" class="filter-select">
+            <option value="all">Все</option>
+            <option value="general">Общие</option>
+            <option value="car">Авто</option>
+          </select>
+        </div>
 
-        <section class="card">
-          <h2>Авто</h2>
-          <form id="carForm" class="form">
-            <label>
-              Дата
-              <input type="date" id="carDate" required />
-            </label>
-            <label>
-              Категория
-              <select id="carCategory" required>
-                <option value="">Выберите</option>
-                <option>Топливо</option>
-                <option>ТО</option>
-                <option>Ремонт</option>
-                <option>Запчасти</option>
-                <option>Страховка</option>
-                <option>Мойка</option>
-                <option>Диагностика</option>
-                <option>Расходники</option>
-                <option>Штрафы</option>
-                <option>Прочее</option>
-              </select>
-            </label>
-            <label>
-              Комментарий
-              <input type="text" id="carDescription" />
-            </label>
-            <label>
-              Сумма
-              <input type="number" id="carAmount" step="1" min="0" required />
-              <div class="quick-amount" data-target="carAmount">
-                <button type="button" data-amount="100">+100</button>
-                <button type="button" data-amount="500">+500</button>
-                <button type="button" data-amount="1000">+1000</button>
-              </div>
-            </label>
-            <button type="submit" class="primary">Добавить</button>
-            <p class="hint" id="carStatus"></p>
-          </form>
-        </section>
+        <div id="historyList" class="history-list">
+          <div class="empty-state">
+            <p>Расходов пока нет</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ TAB: Статистика ══════════════ -->
+      <div class="page tab-content" id="tab-stats">
+        <div class="stats-header">
+          <h1>Статистика</h1>
+          <div class="month-nav">
+            <button id="prevMonth" class="month-btn" type="button">&larr;</button>
+            <span id="currentMonth" class="month-label">Февраль 2026</span>
+            <button id="nextMonth" class="month-btn" type="button">&rarr;</button>
+          </div>
+        </div>
+
+        <!-- Summary cards -->
+        <div class="stats-summary" id="statsSummary">
+          <div class="stat-card">
+            <p class="stat-value" id="statTotal">0</p>
+            <p class="stat-label">Всего</p>
+          </div>
+          <div class="stat-card">
+            <p class="stat-value stat-green" id="statGeneral">0</p>
+            <p class="stat-label">Общие</p>
+          </div>
+          <div class="stat-card">
+            <p class="stat-value stat-orange" id="statCar">0</p>
+            <p class="stat-label">Авто</p>
+          </div>
+          <div class="stat-card">
+            <p class="stat-value stat-purple" id="statCount">0</p>
+            <p class="stat-label">Записей</p>
+          </div>
+        </div>
+
+        <!-- Categories breakdown -->
+        <div class="card" id="categoriesCard">
+          <h2>По категориям</h2>
+          <div id="categoriesList" class="categories-list">
+            <div class="empty-state"><p>Нет данных</p></div>
+          </div>
+        </div>
       </div>
     </div>
 
     <script src="config.js"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="app.js"></script>
