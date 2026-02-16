@@ -545,8 +545,8 @@ const getCategoryBadge = (category) => {
   const map = {
     "Продукты": "green", "Еда": "green",
     "Транспорт": "blue", "Машина": "car",
-    "Дом": "purple", "Подарки": "pink",
-    "Здоровье": "red", "Развлечения": "orange",
+    "Дом": "blue", "Подарки": "pink",
+    "Здоровье": "red", "Развлечения": "purple",
     "Подписки": "gray", "Другое": "gray",
   };
   return map[category] || "gray";
