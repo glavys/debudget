@@ -1,14 +1,14 @@
 :root {
-  --bg: #f0f0f0;
-  --ink: #101828;
-  --muted: #6a7282;
-  --accent: #0d9488;
-  --accent-hover: #0f766e;
-  --accent-soft: #ffffff;
-  --card: #ffffff;
-  --line: #e5e7eb;
-  --input-bg: #f9fafb;
-  --label-color: #99a1af;
+  --bg: #0f1117;
+  --ink: #e5e7eb;
+  --muted: #6b7280;
+  --accent: #2dd4bf;
+  --accent-hover: #14b8a6;
+  --accent-soft: #0f1117;
+  --card: #1a1d27;
+  --line: #2a2d3a;
+  --input-bg: #252836;
+  --label-color: #6b7280;
   --safe-top: 0px;
   --safe-bottom: 0px;
 }
@@ -29,7 +29,7 @@ body {
 }
 
 /* ══════════════════════════════════════════════════════
-   NAVIGATION (sticky tabs like workout-tracker)
+   NAVIGATION
    ══════════════════════════════════════════════════════ */
 
 .nav {
@@ -37,7 +37,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--line);
   padding-top: var(--safe-top);
 }
 
@@ -82,7 +82,7 @@ body {
 }
 
 .nav-tab:not(.active):hover {
-  color: var(--muted);
+  color: var(--ink);
 }
 
 /* ══════════════════════════════════════════════════════
@@ -154,10 +154,10 @@ body {
 
 .card {
   background: var(--card);
-  border: none;
+  border: 1px solid var(--line);
   border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.25);
 }
 
 h2 {
@@ -194,22 +194,29 @@ button {
 input,
 select {
   padding: 12px;
-  border: none;
+  border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--input-bg);
   color: var(--ink);
   font-weight: 500;
   outline: none;
-  transition: box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 input:focus,
 select:focus {
-  box-shadow: 0 0 0 2px var(--accent);
+  box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.3);
+  border-color: var(--accent);
 }
 
 input::placeholder {
-  color: #d1d5dc;
+  color: #4b5563;
+}
+
+select option {
+  background: var(--input-bg);
+  color: var(--ink);
 }
 
 input[type="date"]:not(.has-value) {
@@ -229,6 +236,12 @@ input[type="number"]::-webkit-inner-spin-button {
 
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+/* date/select color-scheme for dark */
+input[type="date"],
+select {
+  color-scheme: dark;
 }
 
 /* ══════════════════════════════════════════════════════
@@ -252,9 +265,8 @@ button:active {
   background: var(--accent);
   color: var(--accent-soft);
   font-size: 15px;
-  font-weight: 600;
-  box-shadow: 0 10px 15px -3px rgba(13, 148, 136, 0.25),
-    0 4px 6px -4px rgba(13, 148, 136, 0.25);
+  font-weight: 700;
+  box-shadow: 0 8px 20px -4px rgba(45, 212, 191, 0.3);
 }
 
 .primary:hover {
@@ -272,7 +284,7 @@ button:active {
 }
 
 .ghost:hover {
-  background: #f0fdfa;
+  background: rgba(45, 212, 191, 0.1);
 }
 
 /* ── Quick Amount ── */
@@ -287,7 +299,7 @@ button:active {
 .quick-amount button {
   background: var(--input-bg);
   color: var(--accent);
-  border: 2px dashed var(--line);
+  border: 1px dashed var(--line);
   padding: 10px;
   border-radius: 12px;
   font-weight: 600;
@@ -296,8 +308,8 @@ button:active {
 }
 
 .quick-amount button:hover {
-  border-color: #2dd4bf;
-  color: #0d9488;
+  border-color: var(--accent);
+  background: rgba(45, 212, 191, 0.08);
 }
 
 /* ── Hints ── */
@@ -315,11 +327,11 @@ button:active {
 }
 
 .hint[data-state="error"] {
-  color: #fb2c36;
+  color: #f87171;
 }
 
 .hint[data-state="ok"] {
-  color: #00a544;
+  color: #34d399;
 }
 
 /* ══════════════════════════════════════════════════════
@@ -365,7 +377,7 @@ button:active {
   background: var(--card);
   padding: 14px 16px;
   border-radius: 14px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--line);
   gap: 12px;
 }
 
@@ -385,14 +397,15 @@ button:active {
   white-space: nowrap;
 }
 
-.badge-green  { background: #f0fdf4; color: #00a544; }
-.badge-blue   { background: #f0fdfa; color: #0d9488; }
-.badge-car    { background: #fff7ed; color: #f05100; }
-.badge-purple { background: #faf5ff; color: #9810fa; }
-.badge-pink   { background: #fdf2f8; color: #db2777; }
-.badge-red    { background: #fef2f2; color: #fb2c36; }
-.badge-orange { background: #fff7ed; color: #f05100; }
-.badge-gray   { background: #f3f4f6; color: #6a7282; }
+/* Dark-friendly badge colors (muted backgrounds, vibrant text) */
+.badge-green  { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+.badge-blue   { background: rgba(45, 212, 191, 0.15); color: #2dd4bf; }
+.badge-car    { background: rgba(251, 146, 60, 0.15); color: #fb923c; }
+.badge-purple { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+.badge-pink   { background: rgba(236, 72, 153, 0.15); color: #ec4899; }
+.badge-red    { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+.badge-orange { background: rgba(251, 146, 60, 0.15); color: #fb923c; }
+.badge-gray   { background: rgba(107, 114, 128, 0.15); color: #9ca3af; }
 
 .history-note {
   font-size: 13px;
@@ -419,7 +432,7 @@ button:active {
 .history-delete {
   background: none;
   border: none;
-  color: #d1d5dc;
+  color: #4b5563;
   font-size: 14px;
   padding: 6px;
   border-radius: 8px;
@@ -429,8 +442,8 @@ button:active {
 }
 
 .history-delete:hover {
-  color: #fb2c36;
-  background: #fef2f2;
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
 }
 
 /* ══════════════════════════════════════════════════════
@@ -456,7 +469,7 @@ button:active {
 
 .month-btn {
   background: var(--card);
-  border: none;
+  border: 1px solid var(--line);
   color: var(--ink);
   width: 40px;
   height: 40px;
@@ -466,12 +479,12 @@ button:active {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   padding: 0;
 }
 
 .month-btn:hover {
   background: var(--input-bg);
+  border-color: var(--accent);
 }
 
 .month-label {
@@ -492,7 +505,7 @@ button:active {
   background: var(--card);
   padding: 16px 20px;
   border-radius: 16px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--line);
 }
 
 .stat-value {
@@ -502,9 +515,9 @@ button:active {
   margin: 0;
 }
 
-.stat-green  { color: #00a544; }
-.stat-orange { color: #f05100; }
-.stat-purple { color: #9810fa; }
+.stat-green  { color: #4ade80; }
+.stat-orange { color: #fb923c; }
+.stat-purple { color: #a855f7; }
 
 .stat-label {
   font-size: 12px;
@@ -549,7 +562,7 @@ button:active {
 
 .cat-bar {
   height: 8px;
-  background: #f3f4f6;
+  background: var(--input-bg);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -560,14 +573,14 @@ button:active {
   transition: width 0.3s ease;
 }
 
-.bar-green  { background: #00c758; }
-.bar-blue   { background: #14b8a6; }
-.bar-car    { background: #f05100; }
-.bar-purple { background: #9810fa; }
-.bar-pink   { background: #db2777; }
-.bar-red    { background: #fb2c36; }
-.bar-orange { background: #f05100; }
-.bar-gray   { background: #99a1af; }
+.bar-green  { background: #4ade80; }
+.bar-blue   { background: #2dd4bf; }
+.bar-car    { background: #fb923c; }
+.bar-purple { background: #a855f7; }
+.bar-pink   { background: #ec4899; }
+.bar-red    { background: #f87171; }
+.bar-orange { background: #fb923c; }
+.bar-gray   { background: #6b7280; }
 
 /* ══════════════════════════════════════════════════════
    EMPTY STATE
@@ -575,10 +588,10 @@ button:active {
 
 .empty-state {
   background: var(--card);
+  border: 1px solid var(--line);
   border-radius: 16px;
   padding: 48px 20px;
   text-align: center;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
 }
 
 .empty-state p {
