@@ -30,7 +30,7 @@
 
         <div class="grid">
           <section class="card">
-            <h2>Общие расходы</h2>
+            <h2>Новый расход</h2>
             <form id="generalForm" class="form">
               <label>
                 Дата
@@ -49,16 +49,28 @@
                 Категория
                 <select id="generalCategory" required>
                   <option value="">Выберите</option>
-                  <option>Продукты</option>
-                  <option>Еда</option>
-                  <option>Транспорт</option>
-                  <option>Машина</option>
-                  <option>Дом</option>
-                  <option>Подарки</option>
-                  <option>Здоровье</option>
-                  <option>Развлечения</option>
-                  <option>Подписки</option>
-                  <option>Другое</option>
+                  <optgroup label="Основные">
+                    <option>Продукты</option>
+                    <option>Еда</option>
+                    <option>Транспорт</option>
+                    <option>Дом</option>
+                    <option>Подарки</option>
+                    <option>Здоровье</option>
+                    <option>Развлечения</option>
+                    <option>Подписки</option>
+                    <option>Другое</option>
+                  </optgroup>
+                  <optgroup label="Авто">
+                    <option>Топливо</option>
+                    <option>ТО</option>
+                    <option>Ремонт</option>
+                    <option>Запчасти</option>
+                    <option>Страховка</option>
+                    <option>Мойка</option>
+                    <option>Диагностика</option>
+                    <option>Расходники</option>
+                    <option>Штрафы</option>
+                  </optgroup>
                 </select>
               </label>
               <label>
@@ -69,47 +81,6 @@
               <p class="hint" id="generalStatus"></p>
             </form>
           </section>
-
-          <section class="card">
-            <h2>Авто</h2>
-            <form id="carForm" class="form">
-              <label>
-                Дата
-                <input type="date" id="carDate" required />
-              </label>
-              <label>
-                Категория
-                <select id="carCategory" required>
-                  <option value="">Выберите</option>
-                  <option>Топливо</option>
-                  <option>ТО</option>
-                  <option>Ремонт</option>
-                  <option>Запчасти</option>
-                  <option>Страховка</option>
-                  <option>Мойка</option>
-                  <option>Диагностика</option>
-                  <option>Расходники</option>
-                  <option>Штрафы</option>
-                  <option>Прочее</option>
-                </select>
-              </label>
-              <label>
-                Комментарий
-                <input type="text" id="carDescription" placeholder="Необязательно" />
-              </label>
-              <label>
-                Сумма
-                <input type="number" id="carAmount" step="1" min="0" placeholder="0" required />
-                <div class="quick-amount" data-target="carAmount">
-                  <button type="button" data-amount="100">+100</button>
-                  <button type="button" data-amount="500">+500</button>
-                  <button type="button" data-amount="1000">+1000</button>
-                </div>
-              </label>
-              <button type="submit" class="primary">Добавить</button>
-              <p class="hint" id="carStatus"></p>
-            </form>
-          </section>
         </div>
       </div>
 
@@ -117,11 +88,6 @@
       <div class="page tab-content" id="tab-history">
         <div class="history-header">
           <h1>История расходов</h1>
-          <select id="historyFilter" class="filter-select">
-            <option value="all">Все</option>
-            <option value="general">Общие</option>
-            <option value="car">Авто</option>
-          </select>
         </div>
 
         <div id="historyList" class="history-list">
@@ -147,14 +113,6 @@
           <div class="stat-card">
             <p class="stat-value" id="statTotal">0</p>
             <p class="stat-label">Всего</p>
-          </div>
-          <div class="stat-card">
-            <p class="stat-value stat-green" id="statGeneral">0</p>
-            <p class="stat-label">Общие</p>
-          </div>
-          <div class="stat-card">
-            <p class="stat-value stat-orange" id="statCar">0</p>
-            <p class="stat-label">Авто</p>
           </div>
           <div class="stat-card">
             <p class="stat-value stat-purple" id="statCount">0</p>

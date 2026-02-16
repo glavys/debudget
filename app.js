@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════
    DeBudget — app.js
-   No auth required. Direct Supabase connection.
+   Single table (expenses). No car_expenses.
    ═══════════════════════════════════════════════════════ */
 
 const config = window.APP_CONFIG || {};
@@ -8,8 +8,7 @@ const SUPABASE_URL = config.SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = config.SUPABASE_ANON_KEY || "";
 
 let supabaseClient = null;
-let generalExpenses = [];
-let carExpenses = [];
+let expenses = [];
 
 /* ── Date Utilities ── */
 
@@ -32,15 +31,13 @@ const normalizeDateToFixedYear = (dateStr) => {
 
 const formatDateDisplay = (dateStr) => {
   if (!dateStr) return "";
-  const day = dateStr.slice(8, 10);
-  const month = dateStr.slice(5, 7);
-  return `${day}.${month}`;
+  return `${dateStr.slice(8, 10)}.${dateStr.slice(5, 7)}`;
 };
 
 const formatAmount = (value) => {
-  const number = Number(value);
-  if (Number.isNaN(number)) return value;
-  return new Intl.NumberFormat("ru-RU").format(number);
+  const n = Number(value);
+  if (Number.isNaN(n)) return value;
+  return new Intl.NumberFormat("ru-RU").format(n);
 };
 
 /* ── DOM References ── */
@@ -53,19 +50,9 @@ const generalNote = document.getElementById("generalNote");
 const generalStatus = document.getElementById("generalStatus");
 const exportBtn = document.getElementById("exportBtn");
 
-const carForm = document.getElementById("carForm");
-const carDate = document.getElementById("carDate");
-const carCategory = document.getElementById("carCategory");
-const carDescription = document.getElementById("carDescription");
-const carAmount = document.getElementById("carAmount");
-const carStatus = document.getElementById("carStatus");
-
-const historyFilter = document.getElementById("historyFilter");
 const historyList = document.getElementById("historyList");
 
 const statTotal = document.getElementById("statTotal");
-const statGeneral = document.getElementById("statGeneral");
-const statCar = document.getElementById("statCar");
 const statCount = document.getElementById("statCount");
 const statAvgDay = document.getElementById("statAvgDay");
 const categoriesList = document.getElementById("categoriesList");
@@ -75,7 +62,7 @@ const nextMonthBtn = document.getElementById("nextMonth");
 
 /* ── State ── */
 
-let statsMonth = getMoscowDate().getMonth(); // 0-indexed
+let statsMonth = getMoscowDate().getMonth();
 let statsYear = Number(FIXED_YEAR);
 
 /* ── Helpers ── */
@@ -86,9 +73,7 @@ const setStatus = (element, message, isError = false) => {
   element.dataset.state = isError ? "error" : "ok";
   element.classList.toggle("visible", Boolean(message));
   if (message && !isError) {
-    setTimeout(() => {
-      element.classList.remove("visible");
-    }, 2500);
+    setTimeout(() => element.classList.remove("visible"), 2500);
   }
 };
 
@@ -104,39 +89,33 @@ const refreshDateInputs = () => {
 const setDefaultDates = () => {
   const today = getMoscowDateString();
   if (generalDate) generalDate.value = today;
-  if (carDate) carDate.value = today;
   refreshDateInputs();
 };
 
-document.addEventListener("input", (event) => {
-  if (event.target instanceof HTMLInputElement && event.target.type === "date") {
-    syncDateInputState(event.target);
+document.addEventListener("input", (e) => {
+  if (e.target instanceof HTMLInputElement && e.target.type === "date") {
+    syncDateInputState(e.target);
   }
 });
 
-/* ── Telegram Theme (optional, non-blocking) ── */
+/* ── Telegram Theme (optional) ── */
 
-const applyThemeParams = (themeParams = {}) => {
+const applyThemeParams = (tp = {}) => {
   const root = document.documentElement;
   const map = {
-    "--bg": themeParams.bg_color,
-    "--ink": themeParams.text_color,
-    "--muted": themeParams.hint_color,
-    "--accent": themeParams.button_color,
-    "--accent-soft": themeParams.button_text_color,
-    "--card": themeParams.secondary_bg_color,
+    "--bg": tp.bg_color, "--ink": tp.text_color, "--muted": tp.hint_color,
+    "--accent": tp.button_color, "--accent-soft": tp.button_text_color,
+    "--card": tp.secondary_bg_color,
   };
-  Object.entries(map).forEach(([key, value]) => {
-    if (value) root.style.setProperty(key, value);
-  });
+  Object.entries(map).forEach(([k, v]) => { if (v) root.style.setProperty(k, v); });
 };
 
 const applySafeArea = () => {
   const root = document.documentElement;
-  const safeArea = window.Telegram?.WebApp?.safeAreaInset;
-  if (!safeArea) return;
-  root.style.setProperty("--safe-top", `${safeArea.top || 0}px`);
-  root.style.setProperty("--safe-bottom", `${safeArea.bottom || 0}px`);
+  const sa = window.Telegram?.WebApp?.safeAreaInset;
+  if (!sa) return;
+  root.style.setProperty("--safe-top", `${sa.top || 0}px`);
+  root.style.setProperty("--safe-bottom", `${sa.bottom || 0}px`);
 };
 
 const initTelegramOptional = () => {
@@ -145,9 +124,7 @@ const initTelegramOptional = () => {
     Telegram.WebApp.expand();
     applyThemeParams(Telegram.WebApp.themeParams);
     applySafeArea();
-    Telegram.WebApp.onEvent("themeChanged", () => {
-      applyThemeParams(Telegram.WebApp.themeParams);
-    });
+    Telegram.WebApp.onEvent("themeChanged", () => applyThemeParams(Telegram.WebApp.themeParams));
   }
 };
 
@@ -162,21 +139,16 @@ const initTabs = () => {
   tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
       const target = tab.dataset.tab;
-
       tabs.forEach((t) => t.classList.remove("active"));
       contents.forEach((c) => c.classList.remove("active"));
-
       tab.classList.add("active");
       document.getElementById(`tab-${target}`).classList.add("active");
-
       localStorage.setItem("active-tab", target);
-
       if (target === "history") renderHistory();
       if (target === "stats") renderStats();
     });
   });
 
-  // Restore last active tab
   const saved = localStorage.getItem("active-tab");
   if (saved) {
     const tab = document.querySelector(`.nav-tab[data-tab="${saved}"]`);
@@ -185,7 +157,7 @@ const initTabs = () => {
 };
 
 /* ═══════════════════════════════════════════════════════
-   SUPABASE (no auth)
+   SUPABASE
    ═══════════════════════════════════════════════════════ */
 
 const initSupabase = () => {
@@ -197,9 +169,7 @@ const initSupabase = () => {
   return true;
 };
 
-/* ── Load Data ── */
-
-const loadGeneralExpenses = async () => {
+const loadExpenses = async () => {
   if (!supabaseClient) return;
   const { data, error } = await supabaseClient
     .from("expenses")
@@ -208,78 +178,30 @@ const loadGeneralExpenses = async () => {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Load general error:", error.message);
+    console.error("Load error:", error.message);
     return;
   }
 
-  generalExpenses = (data || []).map((item) => ({
+  expenses = (data || []).map((item) => ({
     ...item,
     expense_date: normalizeDateToFixedYear(item.expense_date),
   }));
 };
 
-const loadCarExpenses = async () => {
-  if (!supabaseClient) return;
-  const { data, error } = await supabaseClient
-    .from("car_expenses")
-    .select("id, expense_date, amount, category, description, created_at")
-    .order("expense_date", { ascending: false })
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("Load car error:", error.message);
-    return;
-  }
-
-  carExpenses = (data || []).map((item) => ({
-    ...item,
-    expense_date: normalizeDateToFixedYear(item.expense_date),
-  }));
-};
-
-const loadAllData = async () => {
-  await Promise.all([loadGeneralExpenses(), loadCarExpenses()]);
-};
-
-/* ── Delete ── */
-
-const deleteGeneralExpense = async (id) => {
+const deleteExpense = async (id) => {
   if (!supabaseClient) return;
   const { error } = await supabaseClient.from("expenses").delete().eq("id", id);
   if (error) {
     console.error("Delete error:", error.message);
     return;
   }
-  await loadAllData();
-  renderHistory();
-  renderStats();
-};
-
-const deleteCarExpense = async (id, category, amount, expenseDate) => {
-  if (!supabaseClient) return;
-  // Delete from car_expenses
-  const { error } = await supabaseClient.from("car_expenses").delete().eq("id", id);
-  if (error) {
-    console.error("Delete car error:", error.message);
-    return;
-  }
-  // Also delete the mirrored entry in expenses
-  await supabaseClient
-    .from("expenses")
-    .delete()
-    .eq("category", "Машина")
-    .eq("note", category)
-    .eq("amount", amount)
-    .eq("expense_date", expenseDate)
-    .limit(1);
-
-  await loadAllData();
+  await loadExpenses();
   renderHistory();
   renderStats();
 };
 
 /* ═══════════════════════════════════════════════════════
-   FORM HANDLERS
+   FORM
    ═══════════════════════════════════════════════════════ */
 
 generalForm.addEventListener("submit", async (event) => {
@@ -300,10 +222,7 @@ generalForm.addEventListener("submit", async (event) => {
   }
 
   const { error } = await supabaseClient.from("expenses").insert({
-    expense_date,
-    amount,
-    category,
-    note: note || null,
+    expense_date, amount, category, note: note || null,
   });
 
   if (error) {
@@ -314,69 +233,19 @@ generalForm.addEventListener("submit", async (event) => {
   generalForm.reset();
   setDefaultDates();
   setStatus(generalStatus, "Добавлено!");
-  await loadAllData();
-});
-
-carForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  if (!supabaseClient) {
-    setStatus(carStatus, "Нет подключения к БД", true);
-    return;
-  }
-
-  const expense_date = normalizeDateToFixedYear(carDate.value);
-  const amount = Math.round(Number(carAmount.value));
-  const category = carCategory.value.trim();
-  const description = carDescription.value.trim();
-
-  if (!expense_date || Number.isNaN(amount) || amount <= 0 || !category) {
-    setStatus(carStatus, "Заполните дату, сумму и категорию", true);
-    return;
-  }
-
-  const { error } = await supabaseClient.from("car_expenses").insert({
-    expense_date,
-    amount,
-    category,
-    description: description || null,
-  });
-
-  if (error) {
-    setStatus(carStatus, `Ошибка: ${error.message}`, true);
-    return;
-  }
-
-  // Mirror to general expenses
-  const { error: mirrorError } = await supabaseClient.from("expenses").insert({
-    expense_date,
-    amount,
-    category: "Машина",
-    note: category,
-  });
-
-  if (mirrorError) {
-    setStatus(carStatus, `Ошибка записи в общие: ${mirrorError.message}`, true);
-    return;
-  }
-
-  carForm.reset();
-  setDefaultDates();
-  setStatus(carStatus, "Добавлено!");
-  await loadAllData();
+  await loadExpenses();
 });
 
 /* ── Quick Amounts ── */
 
 const initQuickAmounts = () => {
   document.querySelectorAll(".quick-amount").forEach((group) => {
-    const targetId = group.dataset.target;
-    const targetInput = document.getElementById(targetId);
-    group.querySelectorAll("button").forEach((button) => {
-      button.addEventListener("click", () => {
-        const step = Number(button.dataset.amount) || 0;
-        const current = Number(targetInput.value) || 0;
-        targetInput.value = String(current + step);
-        targetInput.dispatchEvent(new Event("input", { bubbles: true }));
+    const input = document.getElementById(group.dataset.target);
+    group.querySelectorAll("button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const step = Number(btn.dataset.amount) || 0;
+        input.value = String((Number(input.value) || 0) + step);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
       });
     });
   });
@@ -390,54 +259,34 @@ const monthNames = {
   "09": "Сентябрь", "10": "Октябрь", "11": "Ноябрь", "12": "Декабрь",
 };
 
-const buildMonthlyRows = (items, columns, mapRow) => {
-  const rows = [];
-  let currentMonth = null;
-  items.forEach((item) => {
-    const month = item.expense_date.slice(5, 7);
-    if (month !== currentMonth) {
-      currentMonth = month;
-      const header = {};
-      columns.forEach((col, i) => {
-        header[col] = i === 0 ? (monthNames[month] || month) : "";
-      });
-      rows.push(header);
-    }
-    rows.push(mapRow(item));
-  });
-  return rows;
-};
-
 const exportAll = () => {
-  if (!generalExpenses.length && !carExpenses.length) {
+  if (!expenses.length) {
     setStatus(generalStatus, "Нет данных для экспорта", true);
     return;
   }
 
-  const gCols = ["Дата", "Сумма", "Категория", "Комментарий"];
-  const cCols = ["Дата", "Категория", "Комментарий", "Сумма"];
+  const cols = ["Дата", "Сумма", "Категория", "Комментарий"];
+  const rows = [];
+  let curMonth = null;
 
-  const gRows = buildMonthlyRows(generalExpenses, gCols, (item) => ({
-    Дата: formatDateDisplay(item.expense_date),
-    Сумма: Math.round(Number(item.amount)),
-    Категория: item.category,
-    Комментарий: item.note || "",
-  }));
-
-  const cRows = buildMonthlyRows(carExpenses, cCols, (item) => ({
-    Дата: formatDateDisplay(item.expense_date),
-    Категория: item.category,
-    Комментарий: item.description || "",
-    Сумма: Math.round(Number(item.amount)),
-  }));
+  expenses.forEach((e) => {
+    const month = e.expense_date.slice(5, 7);
+    if (month !== curMonth) {
+      curMonth = month;
+      rows.push({ Дата: monthNames[month] || month, Сумма: "", Категория: "", Комментарий: "" });
+    }
+    rows.push({
+      Дата: formatDateDisplay(e.expense_date),
+      Сумма: Math.round(Number(e.amount)),
+      Категория: e.category,
+      Комментарий: e.note || "",
+    });
+  });
 
   const wb = XLSX.utils.book_new();
-  const gs = XLSX.utils.json_to_sheet(gRows, { header: gCols });
-  const cs = XLSX.utils.json_to_sheet(cRows, { header: cCols });
-  gs["!cols"] = [{ wch: 12 }, { wch: 10 }, { wch: 16 }, { wch: 24 }];
-  cs["!cols"] = [{ wch: 12 }, { wch: 14 }, { wch: 18 }, { wch: 10 }];
-  XLSX.utils.book_append_sheet(wb, gs, "Общие расходы");
-  XLSX.utils.book_append_sheet(wb, cs, "Расходы авто");
+  const ws = XLSX.utils.json_to_sheet(rows, { header: cols });
+  ws["!cols"] = [{ wch: 12 }, { wch: 10 }, { wch: 16 }, { wch: 24 }];
+  XLSX.utils.book_append_sheet(wb, ws, "Расходы");
 
   const today = getMoscowDateString();
   XLSX.writeFile(wb, `Расходы_до_${formatDateDisplay(today)}.xlsx`);
@@ -449,74 +298,53 @@ exportBtn.addEventListener("click", () => {
 });
 
 /* ═══════════════════════════════════════════════════════
-   HISTORY TAB
+   HISTORY
    ═══════════════════════════════════════════════════════ */
 
+const CAR_CATEGORIES = new Set([
+  "Топливо", "ТО", "Ремонт", "Запчасти", "Страховка",
+  "Мойка", "Диагностика", "Расходники", "Штрафы",
+]);
+
+const getCategoryBadge = (category) => {
+  if (CAR_CATEGORIES.has(category)) return "car";
+  const map = {
+    "Продукты": "green", "Еда": "green",
+    "Транспорт": "blue", "Дом": "blue",
+    "Подарки": "pink", "Здоровье": "red",
+    "Развлечения": "purple", "Подписки": "gray",
+    "Другое": "gray", "Авто": "car",
+  };
+  return map[category] || "gray";
+};
+
 const renderHistory = () => {
-  const filter = historyFilter.value;
-
-  let items = [];
-
-  if (filter === "all" || filter === "general") {
-    items = items.concat(
-      generalExpenses
-        .filter((e) => e.category !== "Машина") // avoid duplicates from car mirror
-        .map((e) => ({ ...e, type: "general" }))
-    );
-  }
-
-  if (filter === "all" || filter === "car") {
-    items = items.concat(
-      carExpenses.map((e) => ({ ...e, type: "car" }))
-    );
-  }
-
-  // If showing all, also include non-car-mirrored "Машина" expenses for completeness
-  if (filter === "all") {
-    // Car expenses already added above, just add general "Машина" entries that were mirrored
-    // Actually let's keep it simple: show car_expenses as "Авто" and general expenses excluding "Машина"
-  }
-
-  // Sort by date descending, then created_at descending
-  items.sort((a, b) => {
-    const dateCompare = b.expense_date.localeCompare(a.expense_date);
-    if (dateCompare !== 0) return dateCompare;
-    return (b.created_at || "").localeCompare(a.created_at || "");
-  });
-
-  if (items.length === 0) {
+  if (expenses.length === 0) {
     historyList.innerHTML = '<div class="empty-state"><p>Расходов пока нет</p></div>';
     return;
   }
 
-  let currentDate = null;
+  let curDate = null;
   let html = "";
 
-  items.forEach((item) => {
-    const date = item.expense_date;
-    if (date !== currentDate) {
-      currentDate = date;
-      html += `<div class="history-date">${formatDateDisplay(date)}</div>`;
+  expenses.forEach((item) => {
+    if (item.expense_date !== curDate) {
+      curDate = item.expense_date;
+      html += `<div class="history-date">${formatDateDisplay(curDate)}</div>`;
     }
 
-    const isCarType = item.type === "car";
-    const badge = isCarType ? "car" : getCategoryBadge(item.category);
-    const name = isCarType ? item.category : item.category;
-    const note = isCarType ? (item.description || "") : (item.note || "");
+    const badge = getCategoryBadge(item.category);
     const amount = formatAmount(Math.round(Number(item.amount)));
 
     html += `
       <div class="history-item">
         <div class="history-item-left">
-          <span class="history-badge badge-${badge}">${isCarType ? "Авто" : item.category}</span>
-          ${note ? `<span class="history-note">${note}</span>` : ""}
+          <span class="history-badge badge-${badge}">${item.category}</span>
+          ${item.note ? `<span class="history-note">${item.note}</span>` : ""}
         </div>
         <div class="history-item-right">
           <span class="history-amount">${amount} &#8381;</span>
-          <button class="history-delete" data-id="${item.id}" data-type="${item.type}"
-            ${isCarType ? `data-category="${item.category}" data-amount="${item.amount}" data-date="${item.expense_date}"` : ""}>
-            &#10005;
-          </button>
+          <button class="history-delete" data-id="${item.id}">&#10005;</button>
         </div>
       </div>
     `;
@@ -524,38 +352,17 @@ const renderHistory = () => {
 
   historyList.innerHTML = html;
 
-  // Attach delete handlers
   historyList.querySelectorAll(".history-delete").forEach((btn) => {
     btn.addEventListener("click", async (e) => {
       e.stopPropagation();
-      const id = btn.dataset.id;
-      const type = btn.dataset.type;
       if (!confirm("Удалить эту запись?")) return;
-
-      if (type === "car") {
-        await deleteCarExpense(id, btn.dataset.category, Number(btn.dataset.amount), btn.dataset.date);
-      } else {
-        await deleteGeneralExpense(id);
-      }
+      await deleteExpense(btn.dataset.id);
     });
   });
 };
 
-const getCategoryBadge = (category) => {
-  const map = {
-    "Продукты": "green", "Еда": "green",
-    "Транспорт": "blue", "Машина": "car",
-    "Дом": "blue", "Подарки": "pink",
-    "Здоровье": "red", "Развлечения": "purple",
-    "Подписки": "gray", "Другое": "gray",
-  };
-  return map[category] || "gray";
-};
-
-historyFilter.addEventListener("change", renderHistory);
-
 /* ═══════════════════════════════════════════════════════
-   STATISTICS TAB
+   STATISTICS
    ═══════════════════════════════════════════════════════ */
 
 const monthNamesFull = [
@@ -587,23 +394,11 @@ const renderStats = () => {
   const monthStr = String(statsMonth + 1).padStart(2, "0");
   const prefix = `${statsYear}-${monthStr}`;
 
-  // Filter general expenses (excluding "Машина" to avoid double counting car)
-  const monthGeneral = generalExpenses.filter(
-    (e) => e.expense_date.startsWith(prefix) && e.category !== "Машина"
-  );
-  const monthCar = carExpenses.filter((e) => e.expense_date.startsWith(prefix));
+  const monthExpenses = expenses.filter((e) => e.expense_date.startsWith(prefix));
 
-  // Also include "Машина" category entries from general expenses for total
-  const monthMachina = generalExpenses.filter(
-    (e) => e.expense_date.startsWith(prefix) && e.category === "Машина"
-  );
+  const total = monthExpenses.reduce((s, e) => s + Number(e.amount), 0);
+  const count = monthExpenses.length;
 
-  const sumGeneral = monthGeneral.reduce((s, e) => s + Number(e.amount), 0);
-  const sumCar = monthCar.reduce((s, e) => s + Number(e.amount), 0);
-  const total = sumGeneral + sumCar;
-  const count = monthGeneral.length + monthCar.length;
-
-  // Calculate average per day
   const now = getMoscowDate();
   const isCurrentMonth = statsMonth === now.getMonth() && statsYear === Number(FIXED_YEAR);
   const daysInMonth = new Date(statsYear, statsMonth + 1, 0).getDate();
@@ -611,22 +406,14 @@ const renderStats = () => {
   const avgPerDay = daysSoFar > 0 ? Math.round(total / daysSoFar) : 0;
 
   statTotal.textContent = formatAmount(Math.round(total));
-  statGeneral.textContent = formatAmount(Math.round(sumGeneral));
-  statCar.textContent = formatAmount(Math.round(sumCar));
   statCount.textContent = count;
   statAvgDay.textContent = formatAmount(avgPerDay);
 
-  // Categories breakdown (general only, car shown as one category)
+  // Categories breakdown
   const catMap = {};
-
-  monthGeneral.forEach((e) => {
-    const cat = e.category;
-    catMap[cat] = (catMap[cat] || 0) + Number(e.amount);
+  monthExpenses.forEach((e) => {
+    catMap[e.category] = (catMap[e.category] || 0) + Number(e.amount);
   });
-
-  if (sumCar > 0) {
-    catMap["Авто"] = sumCar;
-  }
 
   const sorted = Object.entries(catMap).sort((a, b) => b[1] - a[1]);
 
@@ -636,11 +423,11 @@ const renderStats = () => {
   }
 
   const maxVal = sorted[0][1];
-
   let html = "";
+
   sorted.forEach(([cat, sum]) => {
     const pct = maxVal > 0 ? (sum / maxVal) * 100 : 0;
-    const badge = cat === "Авто" ? "car" : getCategoryBadge(cat);
+    const badge = getCategoryBadge(cat);
     html += `
       <div class="cat-row">
         <div class="cat-info">
@@ -668,9 +455,8 @@ const init = async () => {
   initTelegramOptional();
 
   if (!initSupabase()) return;
-  await loadAllData();
+  await loadExpenses();
 
-  // Render current tab if it was restored
   const activeTab = localStorage.getItem("active-tab");
   if (activeTab === "history") renderHistory();
   if (activeTab === "stats") renderStats();
