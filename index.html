@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DeBudget</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <div class="brand">
+          <h1>DeBudget</h1>
+        </div>
+        <div class="hero-actions">
+          <button id="exportBtn" class="ghost" type="button">Экспорт</button>
+        </div>
+      </header>
+
+      <div class="grid">
+        <section class="card">
+          <h2>Общие</h2>
+          <form id="generalForm" class="form">
+            <label>
+              Дата
+              <input type="date" id="generalDate" required />
+            </label>
+            <label>
+              Сумма
+              <input type="number" id="generalAmount" step="1" min="0" required />
+              <div class="quick-amount" data-target="generalAmount">
+                <button type="button" data-amount="100">+100</button>
+                <button type="button" data-amount="500">+500</button>
+                <button type="button" data-amount="1000">+1000</button>
+              </div>
+            </label>
+            <label>
+              Категория
+              <select id="generalCategory" required>
+                <option value="">Выберите</option>
+                <option>Продукты</option>
+                <option>Еда</option>
+                <option>Транспорт</option>
+                <option>Машина</option>
+                <option>Дом</option>
+                <option>Подарки</option>
+                <option>Здоровье</option>
+                <option>Развлечения</option>
+                <option>Подписки</option>
+                <option>Другое</option>
+              </select>
+            </label>
+            <label>
+              Комментарий
+              <input type="text" id="generalNote" />
+            </label>
+            <button type="submit" class="primary">Добавить</button>
+            <p class="hint" id="generalStatus"></p>
+          </form>
+        </section>
+
+        <section class="card">
+          <h2>Авто</h2>
+          <form id="carForm" class="form">
+            <label>
+              Дата
+              <input type="date" id="carDate" required />
+            </label>
+            <label>
+              Категория
+              <select id="carCategory" required>
+                <option value="">Выберите</option>
+                <option>Топливо</option>
+                <option>ТО</option>
+                <option>Ремонт</option>
+                <option>Запчасти</option>
+                <option>Страховка</option>
+                <option>Мойка</option>
+                <option>Диагностика</option>
+                <option>Расходники</option>
+                <option>Штрафы</option>
+                <option>Прочее</option>
+              </select>
+            </label>
+            <label>
+              Комментарий
+              <input type="text" id="carDescription" />
+            </label>
+            <label>
+              Сумма
+              <input type="number" id="carAmount" step="1" min="0" required />
+              <div class="quick-amount" data-target="carAmount">
+                <button type="button" data-amount="100">+100</button>
+                <button type="button" data-amount="500">+500</button>
+                <button type="button" data-amount="1000">+1000</button>
+              </div>
+            </label>
+            <button type="submit" class="primary">Добавить</button>
+            <p class="hint" id="carStatus"></p>
+          </form>
+        </section>
+      </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
