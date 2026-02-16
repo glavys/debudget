@@ -67,6 +67,7 @@ const statTotal = document.getElementById("statTotal");
 const statGeneral = document.getElementById("statGeneral");
 const statCar = document.getElementById("statCar");
 const statCount = document.getElementById("statCount");
+const statAvgDay = document.getElementById("statAvgDay");
 const categoriesList = document.getElementById("categoriesList");
 const currentMonthEl = document.getElementById("currentMonth");
 const prevMonthBtn = document.getElementById("prevMonth");
@@ -602,10 +603,18 @@ const renderStats = () => {
   const total = sumGeneral + sumCar;
   const count = monthGeneral.length + monthCar.length;
 
+  // Calculate average per day
+  const now = getMoscowDate();
+  const isCurrentMonth = statsMonth === now.getMonth() && statsYear === Number(FIXED_YEAR);
+  const daysInMonth = new Date(statsYear, statsMonth + 1, 0).getDate();
+  const daysSoFar = isCurrentMonth ? now.getDate() : daysInMonth;
+  const avgPerDay = daysSoFar > 0 ? Math.round(total / daysSoFar) : 0;
+
   statTotal.textContent = formatAmount(Math.round(total));
   statGeneral.textContent = formatAmount(Math.round(sumGeneral));
   statCar.textContent = formatAmount(Math.round(sumCar));
   statCount.textContent = count;
+  statAvgDay.textContent = formatAmount(avgPerDay);
 
   // Categories breakdown (general only, car shown as one category)
   const catMap = {};
