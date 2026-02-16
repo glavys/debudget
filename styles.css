@@ -2,8 +2,8 @@
   --bg: #f0f0f0;
   --ink: #101828;
   --muted: #6a7282;
-  --accent: #155dfc;
-  --accent-hover: #1447e6;
+  --accent: #0d9488;
+  --accent-hover: #0f766e;
   --accent-soft: #ffffff;
   --card: #ffffff;
   --line: #e5e7eb;
@@ -253,8 +253,8 @@ button:active {
   color: var(--accent-soft);
   font-size: 15px;
   font-weight: 600;
-  box-shadow: 0 10px 15px -3px rgba(21, 93, 252, 0.25),
-    0 4px 6px -4px rgba(21, 93, 252, 0.25);
+  box-shadow: 0 10px 15px -3px rgba(13, 148, 136, 0.25),
+    0 4px 6px -4px rgba(13, 148, 136, 0.25);
 }
 
 .primary:hover {
@@ -272,7 +272,7 @@ button:active {
 }
 
 .ghost:hover {
-  background: #eff6ff;
+  background: #f0fdfa;
 }
 
 /* ── Quick Amount ── */
@@ -296,8 +296,8 @@ button:active {
 }
 
 .quick-amount button:hover {
-  border-color: #54a2ff;
-  color: #3080ff;
+  border-color: #2dd4bf;
+  color: #0d9488;
 }
 
 /* ── Hints ── */
@@ -386,7 +386,7 @@ button:active {
 }
 
 .badge-green  { background: #f0fdf4; color: #00a544; }
-.badge-blue   { background: #eff6ff; color: #155dfc; }
+.badge-blue   { background: #f0fdfa; color: #0d9488; }
 .badge-car    { background: #fff7ed; color: #f05100; }
 .badge-purple { background: #faf5ff; color: #9810fa; }
 .badge-pink   { background: #fdf2f8; color: #db2777; }
@@ -561,7 +561,7 @@ button:active {
 }
 
 .bar-green  { background: #00c758; }
-.bar-blue   { background: #3080ff; }
+.bar-blue   { background: #14b8a6; }
 .bar-car    { background: #f05100; }
 .bar-purple { background: #9810fa; }
 .bar-pink   { background: #db2777; }
