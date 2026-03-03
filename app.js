@@ -45,6 +45,7 @@ const formatAmount = (value) => {
 const generalForm = document.getElementById("generalForm");
 const generalDate = document.getElementById("generalDate");
 const generalAmount = document.getElementById("generalAmount");
+const amountHint = document.getElementById("amountHint");
 const generalCategory = document.getElementById("generalCategory");
 const generalNote = document.getElementById("generalNote");
 const generalStatus = document.getElementById("generalStatus");
@@ -64,6 +65,26 @@ const nextMonthBtn = document.getElementById("nextMonth");
 
 let statsMonth = getMoscowDate().getMonth();
 let statsYear = Number(FIXED_YEAR);
+let lastUsedDate = null;
+
+/* ── Amount Parser ── */
+
+const parseAmountInput = (raw) => {
+  const parts = raw.trim().split(/\s+/).map(Number).filter((n) => !isNaN(n) && n > 0);
+  return parts.reduce((sum, n) => sum + n, 0);
+};
+
+const updateAmountHint = () => {
+  if (!amountHint) return;
+  const raw = generalAmount.value;
+  const parts = raw.trim().split(/\s+/).filter((s) => s !== "");
+  if (parts.length > 1) {
+    const total = parseAmountInput(raw);
+    amountHint.textContent = total > 0 ? `= ${formatAmount(total)}` : "";
+  } else {
+    amountHint.textContent = "";
+  }
+};
 
 /* ── Helpers ── */
 
@@ -88,7 +109,7 @@ const refreshDateInputs = () => {
 
 const setDefaultDates = () => {
   const today = getMoscowDateString();
-  if (generalDate) generalDate.value = today;
+  if (generalDate) generalDate.value = lastUsedDate || today;
   refreshDateInputs();
 };
 
@@ -97,6 +118,8 @@ document.addEventListener("input", (e) => {
     syncDateInputState(e.target);
   }
 });
+
+if (generalAmount) generalAmount.addEventListener("input", updateAmountHint);
 
 /* ── Telegram Theme (optional) ── */
 
@@ -212,11 +235,11 @@ generalForm.addEventListener("submit", async (event) => {
   }
 
   const expense_date = normalizeDateToFixedYear(generalDate.value);
-  const amount = Math.round(Number(generalAmount.value));
+  const amount = Math.round(parseAmountInput(generalAmount.value));
   const category = generalCategory.value.trim();
   const note = generalNote.value.trim();
 
-  if (!expense_date || Number.isNaN(amount) || amount <= 0 || !category) {
+  if (!expense_date || amount <= 0 || !category) {
     setStatus(generalStatus, "Заполните дату, сумму и категорию", true);
     return;
   }
@@ -230,26 +253,14 @@ generalForm.addEventListener("submit", async (event) => {
     return;
   }
 
+  lastUsedDate = generalDate.value;
   generalForm.reset();
+  if (amountHint) amountHint.textContent = "";
   setDefaultDates();
   setStatus(generalStatus, "Добавлено!");
   await loadExpenses();
 });
 
-/* ── Quick Amounts ── */
-
-const initQuickAmounts = () => {
-  document.querySelectorAll(".quick-amount").forEach((group) => {
-    const input = document.getElementById(group.dataset.target);
-    group.querySelectorAll("button").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const step = Number(btn.dataset.amount) || 0;
-        input.value = String((Number(input.value) || 0) + step);
-        input.dispatchEvent(new Event("input", { bubbles: true }));
-      });
-    });
-  });
-};
 
 /* ── Export ── */
 
@@ -450,7 +461,6 @@ const renderStats = () => {
 
 const init = async () => {
   setDefaultDates();
-  initQuickAmounts();
   initTabs();
   initTelegramOptional();
 

@@ -38,12 +38,8 @@
               </label>
               <label>
                 Сумма
-                <input type="number" id="generalAmount" step="1" min="0" placeholder="0" required />
-                <div class="quick-amount" data-target="generalAmount">
-                  <button type="button" data-amount="100">+100</button>
-                  <button type="button" data-amount="500">+500</button>
-                  <button type="button" data-amount="1000">+1000</button>
-                </div>
+                <input type="text" id="generalAmount" inputmode="decimal" placeholder="0" required autocomplete="off" />
+                <span id="amountHint" class="amount-hint"></span>
               </label>
               <label>
                 Категория

@@ -287,29 +287,17 @@ button:active {
   background: rgba(45, 212, 191, 0.1);
 }
 
-/* ── Quick Amount ── */
 
-.quick-amount {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-top: 8px;
-}
+/* ── Amount Hint ── */
 
-.quick-amount button {
-  background: var(--input-bg);
-  color: var(--accent);
-  border: 1px dashed var(--line);
-  padding: 10px;
-  border-radius: 12px;
-  font-weight: 600;
+.amount-hint {
+  display: block;
   font-size: 13px;
-  box-shadow: none;
-}
-
-.quick-amount button:hover {
-  border-color: var(--accent);
-  background: rgba(45, 212, 191, 0.08);
+  font-weight: 600;
+  color: var(--accent);
+  margin-top: 6px;
+  min-height: 18px;
+  letter-spacing: 0.01em;
 }
 
 /* ── Hints ── */
