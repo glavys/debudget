@@ -323,7 +323,8 @@ const getCategoryBadge = (category) => {
     "Продукты": "green", "Еда": "green",
     "Транспорт": "blue", "Дом": "blue",
     "Подарки": "pink", "Здоровье": "red",
-    "Развлечения": "purple", "Подписки": "gray",
+    "Развлечения": "purple", "Путешествия": "yellow",
+    "Подписки": "gray",
     "Другое": "gray", "Авто": "car",
   };
   return map[category] || "gray";
