@@ -66,6 +66,8 @@ const nextMonthBtn = document.getElementById("nextMonth");
 let statsMonth = getMoscowDate().getMonth();
 let statsYear = Number(FIXED_YEAR);
 let lastUsedDate = null;
+const expandedCategories = new Set();
+const excludedCategories = new Set();
 
 /* ── Amount Parser ── */
 
@@ -408,8 +410,10 @@ const renderStats = () => {
 
   const monthExpenses = expenses.filter((e) => e.expense_date.startsWith(prefix));
 
-  const total = monthExpenses.reduce((s, e) => s + Number(e.amount), 0);
-  const count = monthExpenses.length;
+  // Totals excluding excluded categories
+  const includedExpenses = monthExpenses.filter((e) => !excludedCategories.has(e.category));
+  const total = includedExpenses.reduce((s, e) => s + Number(e.amount), 0);
+  const count = includedExpenses.length;
 
   const now = getMoscowDate();
   const isCurrentMonth = statsMonth === now.getMonth() && statsYear === Number(FIXED_YEAR);
@@ -440,14 +444,42 @@ const renderStats = () => {
   sorted.forEach(([cat, sum]) => {
     const pct = maxVal > 0 ? (sum / maxVal) * 100 : 0;
     const badge = getCategoryBadge(cat);
+    const isExpanded = expandedCategories.has(cat);
+    const isExcluded = excludedCategories.has(cat);
+    const rowCls = `cat-row${isExpanded ? " expanded" : ""}${isExcluded ? " excluded" : ""}`;
+
+    // Build detail rows for this category
+    const catExpenses = monthExpenses
+      .filter((e) => e.category === cat)
+      .sort((a, b) => b.expense_date.localeCompare(a.expense_date));
+
+    let detailHtml = "";
+    catExpenses.forEach((e) => {
+      const date = formatDateDisplay(e.expense_date);
+      const amt = formatAmount(Math.round(Number(e.amount)));
+      const note = e.note ? `<span class="cat-detail-note">${e.note}</span>` : '<span class="cat-detail-note"></span>';
+      detailHtml += `
+        <div class="cat-detail-row">
+          <span class="cat-detail-date">${date}</span>
+          ${note}
+          <span class="cat-detail-amount">${amt} &#8381;</span>
+        </div>`;
+    });
+
     html += `
-      <div class="cat-row">
+      <div class="${rowCls}" data-category="${cat}">
         <div class="cat-info">
-          <span class="cat-name">${cat}</span>
-          <span class="cat-sum">${formatAmount(Math.round(sum))} &#8381;</span>
+          <span class="cat-name">${cat} <span class="cat-chevron">&#9662;</span></span>
+          <span class="cat-sum-group">
+            <span class="cat-sum">${formatAmount(Math.round(sum))} &#8381;</span>
+            <button class="cat-exclude-btn${isExcluded ? " excluded" : ""}" data-category="${cat}" title="${isExcluded ? "Включить в итого" : "Исключить из итого"}">&#10005;</button>
+          </span>
         </div>
         <div class="cat-bar">
           <div class="cat-bar-fill bar-${badge}" style="width: ${pct}%"></div>
+        </div>
+        <div class="cat-details">
+          <div class="cat-details-inner">${detailHtml}</div>
         </div>
       </div>
     `;
@@ -455,6 +487,27 @@ const renderStats = () => {
 
   categoriesList.innerHTML = html;
 };
+
+/* ── Stats Interaction ── */
+
+categoriesList.addEventListener("click", (e) => {
+  const excludeBtn = e.target.closest(".cat-exclude-btn");
+  if (excludeBtn) {
+    e.stopPropagation();
+    const cat = excludeBtn.dataset.category;
+    if (excludedCategories.has(cat)) excludedCategories.delete(cat);
+    else excludedCategories.add(cat);
+    renderStats();
+    return;
+  }
+
+  const row = e.target.closest(".cat-row");
+  if (!row) return;
+  const cat = row.dataset.category;
+  if (expandedCategories.has(cat)) expandedCategories.delete(cat);
+  else expandedCategories.add(cat);
+  row.classList.toggle("expanded");
+});
 
 /* ═══════════════════════════════════════════════════════
    INIT
