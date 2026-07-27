@@ -2,9 +2,10 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#0f1117" />
     <title>DeBudget</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -13,9 +14,9 @@
       <!-- ── Navigation ── -->
       <nav class="nav">
         <div class="nav-inner">
-          <button class="nav-tab active" data-tab="add">Добавить</button>
-          <button class="nav-tab" data-tab="history">История</button>
-          <button class="nav-tab" data-tab="stats">Статистика</button>
+          <button class="nav-tab active" data-tab="add" type="button">Добавить</button>
+          <button class="nav-tab" data-tab="history" type="button">История</button>
+          <button class="nav-tab" data-tab="stats" type="button">Статистика</button>
         </div>
       </nav>
 
@@ -38,44 +39,27 @@
               </label>
               <label>
                 Сумма
-                <input type="text" id="generalAmount" inputmode="decimal" placeholder="0" required autocomplete="off" />
+                <input
+                  type="text"
+                  id="generalAmount"
+                  inputmode="decimal"
+                  placeholder="0"
+                  required
+                  autocomplete="off"
+                />
                 <span id="amountHint" class="amount-hint"></span>
               </label>
               <label>
                 Категория
-                <select id="generalCategory" required>
-                  <option value="">Выберите</option>
-                  <optgroup label="Основные">
-                    <option>Продукты</option>
-                    <option>Еда</option>
-                    <option>Транспорт</option>
-                    <option>Дом</option>
-                    <option>Подарки</option>
-                    <option>Здоровье</option>
-                    <option>Развлечения</option>
-                    <option>Путешествия</option>
-                    <option>Подписки</option>
-                    <option>Другое</option>
-                  </optgroup>
-                  <optgroup label="Авто">
-                    <option>Топливо</option>
-                    <option>ТО</option>
-                    <option>Ремонт</option>
-                    <option>Запчасти</option>
-                    <option>Страховка</option>
-                    <option>Мойка</option>
-                    <option>Диагностика</option>
-                    <option>Расходники</option>
-                    <option>Штрафы</option>
-                  </optgroup>
-                </select>
+                <!-- Наполняется из CATEGORIES в app.js -->
+                <select id="generalCategory" required></select>
               </label>
               <label>
                 Комментарий
                 <input type="text" id="generalNote" placeholder="Необязательно" />
               </label>
               <button type="submit" class="primary">Добавить</button>
-              <p class="hint" id="generalStatus"></p>
+              <p class="hint" id="generalStatus" role="status" aria-live="polite"></p>
             </form>
           </section>
         </div>
@@ -88,9 +72,7 @@
         </div>
 
         <div id="historyList" class="history-list">
-          <div class="empty-state">
-            <p>Расходов пока нет</p>
-          </div>
+          <div class="empty-state"><p>Расходов пока нет</p></div>
         </div>
       </div>
 
@@ -99,13 +81,12 @@
         <div class="stats-header">
           <h1>Статистика</h1>
           <div class="month-nav">
-            <button id="prevMonth" class="month-btn" type="button">&larr;</button>
-            <span id="currentMonth" class="month-label">Февраль 2026</span>
-            <button id="nextMonth" class="month-btn" type="button">&rarr;</button>
+            <button id="prevMonth" class="month-btn" type="button" aria-label="Предыдущий месяц">&larr;</button>
+            <span id="currentMonth" class="month-label"></span>
+            <button id="nextMonth" class="month-btn" type="button" aria-label="Следующий месяц">&rarr;</button>
           </div>
         </div>
 
-        <!-- Summary cards -->
         <div class="stats-summary" id="statsSummary">
           <div class="stat-card">
             <p class="stat-value" id="statTotal">0</p>
@@ -121,7 +102,6 @@
           </div>
         </div>
 
-        <!-- Categories breakdown -->
         <div class="card" id="categoriesCard">
           <h2>По категориям</h2>
           <div id="categoriesList" class="categories-list">
@@ -133,7 +113,7 @@
 
     <script src="config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
