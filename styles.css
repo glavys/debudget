@@ -37,15 +37,21 @@
      для текста бейджа (он должен читаться, поэтому
      темнее). Меняешь тут — меняется везде.
      ─────────────────────────────────────────────────── */
-  --c-green:  #6f9c78;  --c-green-ink:  #3f6b4c;  --c-green-bg:  rgba(111, 156, 120, 0.15);
-  --c-blue:   #6b8fb5;  --c-blue-ink:   #3f6187;  --c-blue-bg:   rgba(107, 143, 181, 0.16);
-  --c-teal:   #5f9b9b;  --c-teal-ink:   #3c6c6e;  --c-teal-bg:   rgba(95, 155, 155, 0.16);
-  --c-car:    #b8845c;  --c-car-ink:    #8a5a34;  --c-car-bg:    rgba(184, 132, 92, 0.17);
-  --c-purple: #8b7db0;  --c-purple-ink: #5f5285;  --c-purple-bg: rgba(139, 125, 176, 0.16);
-  --c-pink:   #bd8199;  --c-pink-ink:   #8e546e;  --c-pink-bg:   rgba(189, 129, 153, 0.16);
-  --c-red:    #c1746c;  --c-red-ink:    #944a43;  --c-red-bg:    rgba(193, 116, 108, 0.16);
-  --c-yellow: #d0a95e;  --c-yellow-ink: #8a681f;  --c-yellow-bg: rgba(208, 169, 94, 0.20);
-  --c-gray:   #a49a90;  --c-gray-ink:   #6f665e;  --c-gray-bg:   rgba(164, 154, 144, 0.16);
+  --c-green:  #5c9169;  --c-green-ink:  #3a6a49;  --c-green-bg:  rgba(92, 145, 105, 0.15);
+  --c-teal:   #4f9295;  --c-teal-ink:   #326265;  --c-teal-bg:   rgba(79, 146, 149, 0.15);
+  --c-blue:   #5b83b8;  --c-blue-ink:   #3a5c88;  --c-blue-bg:   rgba(91, 131, 184, 0.15);
+  --c-purple: #8474b5;  --c-purple-ink: #5a4d86;  --c-purple-bg: rgba(132, 116, 181, 0.15);
+  --c-pink:   #c07692;  --c-pink-ink:   #8e4c68;  --c-pink-bg:   rgba(192, 118, 146, 0.15);
+  --c-red:    #c26a60;  --c-red-ink:    #96453c;  --c-red-bg:    rgba(194, 106, 96, 0.15);
+  --c-car:    #bd7f4c;  --c-car-ink:    #8a5526;  --c-car-bg:    rgba(189, 127, 76, 0.16);
+  --c-yellow: #cfa143;  --c-yellow-ink: #866219;  --c-yellow-bg: rgba(207, 161, 67, 0.19);
+  --c-gray:   #9c938a;  --c-gray-ink:   #6b625a;  --c-gray-bg:   rgba(156, 147, 138, 0.16);
+
+  /* Доллары. Отдельный болотно-зелёный, один на все категории:
+     по нему валюта узнаётся с одного взгляда. */
+  --c-usd:     #6f8544;
+  --c-usd-ink: #4e6129;
+  --c-usd-bg:  rgba(111, 133, 68, 0.16);
 
   /* Шрифты
      Один шрифт на всё приложение — тот, которым набрана
@@ -155,11 +161,6 @@ body {
   transition: background var(--dur) var(--ease),
               color var(--dur) var(--ease),
               border-color var(--dur) var(--ease);
-}
-
-.cur-btn .cur-sign {
-  font-size: var(--t-sm);
-  font-weight: 700;
 }
 
 .cur-btn:hover:not(:disabled):not(.active) {
@@ -298,16 +299,8 @@ body {
 }
 
 body[data-currency="USD"] #historyChip {
-  background: var(--c-green-bg);
-  color: var(--c-green-ink);
-}
-
-/* В статистике валюты не разделяются — значок нейтральный */
-.cur-chip-both {
-  font-size: var(--t-xs);
-  letter-spacing: 0.02em;
-  background: var(--tint);
-  color: var(--ink-500);
+  background: var(--c-usd-bg);
+  color: var(--c-usd-ink);
 }
 
 /* ══════════════════════════════════════════════════════
@@ -664,12 +657,14 @@ button:active {
 }
 
 /* Вторая валюта в карточке — строкой ниже и мельче.
-   Складывать рубли с долларами нельзя, поэтому две строки. */
-.stat-value-sub {
-  font-size: var(--t-sm);
+   Складывать рубли с долларами нельзя, поэтому две строки.
+   Селектор двойной: иначе .stat-value из media-запроса
+   внизу файла перебивает размер обратно на крупный. */
+.stat-card .stat-value-sub {
+  font-size: var(--t-md);
   font-weight: 600;
-  color: var(--ink-500);
-  margin-top: 1px;
+  color: var(--c-usd-ink);
+  margin-top: 2px;
 }
 
 .stat-value-sub[hidden] { display: none; }
@@ -758,10 +753,10 @@ button:active {
   white-space: nowrap;
 }
 
-/* Долларовая сумма — тем же кеглем, но приглушённее,
+/* Долларовая сумма — тем же кеглем, но своим цветом,
    чтобы взгляд не путал валюты */
 .cat-sum-alt {
-  color: var(--ink-700);
+  color: var(--c-usd-ink);
 }
 
 .cat-sep {
@@ -816,6 +811,10 @@ button:active {
   text-align: center;
 }
 
+.cat-bar-cur.cur-USD {
+  color: var(--c-usd-ink);
+}
+
 .cat-bar {
   flex: 1;
   height: 6px;
@@ -830,9 +829,9 @@ button:active {
   transition: width 300ms var(--ease);
 }
 
-/* Долларовая полоска — тот же цвет, но бледнее */
-.cat-bar-fill.alt {
-  opacity: 0.55;
+/* Долларовая полоска — свой болотно-зелёный на все категории */
+.cat-bar-fill.bar-usd {
+  background: var(--c-usd);
 }
 
 /* Полоски и точки — та же палитра */

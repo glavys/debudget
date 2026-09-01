@@ -73,8 +73,8 @@ const CURRENCIES = {
     symbol: "$",
     label: "Доллары",
     sub: "Траты в USDT",
-    locale: "en-US",
-    decimals: 2,
+    locale: "ru-RU",
+    decimals: 0,
     sheet: "Доллары",
     // group: null — рисуются просто списком, без заголовков
     categories: [
@@ -620,16 +620,17 @@ const renderCategoryDetails = (rows) =>
     .join("");
 
 /** Полоска одной валюты. Каждая нормируется по своему максимуму —
-    рубли с долларами не сравниваются напрямую. */
+    рубли с долларами не сравниваются напрямую.
+    Доллары всегда болотно-зелёные, независимо от категории. */
 const renderBar = (code, value, max, color) => {
   if (!(value > 0)) return "";
   const pct = max > 0 ? (value / max) * 100 : 0;
-  const alt = code === DEFAULT_CURRENCY ? "" : " alt";
+  const fill = code === DEFAULT_CURRENCY ? `bar-${color}` : "bar-usd";
   return `
     <div class="cat-bar-row">
-      <span class="cat-bar-cur">${CURRENCIES[code].symbol}</span>
+      <span class="cat-bar-cur cur-${code}">${CURRENCIES[code].symbol}</span>
       <div class="cat-bar">
-        <div class="cat-bar-fill bar-${color}${alt}" style="width: ${pct}%"></div>
+        <div class="cat-bar-fill ${fill}" style="width: ${pct}%"></div>
       </div>
     </div>`;
 };
