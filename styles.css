@@ -39,6 +39,7 @@
      ─────────────────────────────────────────────────── */
   --c-green:  #6f9c78;  --c-green-ink:  #3f6b4c;  --c-green-bg:  rgba(111, 156, 120, 0.15);
   --c-blue:   #6b8fb5;  --c-blue-ink:   #3f6187;  --c-blue-bg:   rgba(107, 143, 181, 0.16);
+  --c-teal:   #5f9b9b;  --c-teal-ink:   #3c6c6e;  --c-teal-bg:   rgba(95, 155, 155, 0.16);
   --c-car:    #b8845c;  --c-car-ink:    #8a5a34;  --c-car-bg:    rgba(184, 132, 92, 0.17);
   --c-purple: #8b7db0;  --c-purple-ink: #5f5285;  --c-purple-bg: rgba(139, 125, 176, 0.16);
   --c-pink:   #bd8199;  --c-pink-ink:   #8e546e;  --c-pink-bg:   rgba(189, 129, 153, 0.16);
@@ -101,7 +102,6 @@ body {
    чтобы суммы в колонку не «плясали» */
 .history-amount,
 .cat-sum,
-.cat-share,
 .cat-detail-amount,
 .cat-detail-date,
 .stat-value,
@@ -297,9 +297,17 @@ body {
   line-height: 1;
 }
 
-body[data-currency="USD"] .cur-chip {
+body[data-currency="USD"] #historyChip {
   background: var(--c-green-bg);
   color: var(--c-green-ink);
+}
+
+/* В статистике валюты не разделяются — значок нейтральный */
+.cur-chip-both {
+  font-size: var(--t-xs);
+  letter-spacing: 0.02em;
+  background: var(--tint);
+  color: var(--ink-500);
 }
 
 /* ══════════════════════════════════════════════════════
@@ -528,6 +536,7 @@ button:active {
 /* Бейджи — на общей палитре из :root */
 .badge-green  { background: var(--c-green-bg);  color: var(--c-green-ink);  }
 .badge-blue   { background: var(--c-blue-bg);   color: var(--c-blue-ink);   }
+.badge-teal   { background: var(--c-teal-bg);   color: var(--c-teal-ink);   }
 .badge-car    { background: var(--c-car-bg);    color: var(--c-car-ink);    }
 .badge-purple { background: var(--c-purple-bg); color: var(--c-purple-ink); }
 .badge-pink   { background: var(--c-pink-bg);   color: var(--c-pink-ink);   }
@@ -654,6 +663,17 @@ button:active {
   text-overflow: ellipsis;
 }
 
+/* Вторая валюта в карточке — строкой ниже и мельче.
+   Складывать рубли с долларами нельзя, поэтому две строки. */
+.stat-value-sub {
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--ink-500);
+  margin-top: 1px;
+}
+
+.stat-value-sub[hidden] { display: none; }
+
 .stat-muted { color: var(--ink-500); }
 
 .stat-label {
@@ -731,19 +751,22 @@ button:active {
   flex-shrink: 0;
 }
 
-.cat-share {
-  font-size: var(--t-2xs);
-  font-weight: 600;
-  color: var(--ink-500);
-  background: var(--tint);
-  padding: 1px 6px;
-  border-radius: var(--r-pill);
-}
-
 .cat-sum {
   font-size: var(--t-sm);
   font-weight: 600;
   color: var(--ink-950);
+  white-space: nowrap;
+}
+
+/* Долларовая сумма — тем же кеглем, но приглушённее,
+   чтобы взгляд не путал валюты */
+.cat-sum-alt {
+  color: var(--ink-700);
+}
+
+.cat-sep {
+  color: var(--line-400);
+  font-size: var(--t-sm);
 }
 
 .cat-exclude-btn {
@@ -769,7 +792,32 @@ button:active {
   background: var(--red-bg);
 }
 
+/* Полоски: по одной на валюту. Каждая нормирована по
+   своему максимуму — длины рублёвой и долларовой между
+   собой не сравниваются, поэтому слева стоит знак валюты. */
+.cat-bars {
+  display: grid;
+  gap: 3px;
+}
+
+.cat-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cat-bar-cur {
+  width: 9px;
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--line-400);
+  text-align: center;
+}
+
 .cat-bar {
+  flex: 1;
   height: 6px;
   background: var(--paper-sunken);
   border-radius: var(--r-pill);
@@ -782,9 +830,15 @@ button:active {
   transition: width 300ms var(--ease);
 }
 
+/* Долларовая полоска — тот же цвет, но бледнее */
+.cat-bar-fill.alt {
+  opacity: 0.55;
+}
+
 /* Полоски и точки — та же палитра */
 .bar-green,  .dot-green  { background: var(--c-green);  }
 .bar-blue,   .dot-blue   { background: var(--c-blue);   }
+.bar-teal,   .dot-teal   { background: var(--c-teal);   }
 .bar-car,    .dot-car    { background: var(--c-car);    }
 .bar-purple, .dot-purple { background: var(--c-purple); }
 .bar-pink,   .dot-pink   { background: var(--c-pink);   }

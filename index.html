@@ -14,8 +14,8 @@
       <!-- ── Navigation ── -->
       <nav class="nav">
         <div class="nav-inner">
-          <!-- Переключатель валюты: рублёвые и долларовые траты
-               живут отдельно, но через одни и те же экраны -->
+          <!-- Переключатель валюты. Управляет вкладками
+               «Добавить» и «История». Статистика — общая. -->
           <div class="cur-switch" role="group" aria-label="Валюта">
             <button class="cur-btn active" data-currency="RUB" type="button">
               <span class="cur-sign">&#8381;</span> Рубли
@@ -47,7 +47,7 @@
 
         <div class="grid">
           <section class="card">
-            <h2 id="addTitle">Новый расход</h2>
+            <h2>Новый расход</h2>
             <form id="generalForm" class="form">
               <label>
                 Дата
@@ -98,7 +98,7 @@
         <div class="stats-header">
           <div class="stats-title-row">
             <h1>Статистика</h1>
-            <span class="cur-chip" id="statsChip">&#8381;</span>
+            <span class="cur-chip cur-chip-both">&#8381; + $</span>
           </div>
           <div class="month-nav">
             <button id="prevMonth" class="month-btn" type="button" aria-label="Предыдущий месяц">&larr;</button>
@@ -109,7 +109,8 @@
 
         <div class="stats-summary" id="statsSummary">
           <div class="stat-card stat-card-total">
-            <p class="stat-value" id="statTotal">0</p>
+            <p class="stat-value" id="statTotalRub">0</p>
+            <p class="stat-value stat-value-sub" id="statTotalUsd" hidden>0</p>
             <p class="stat-label">Всего</p>
           </div>
           <div class="stat-card">
@@ -117,7 +118,8 @@
             <p class="stat-label">Записей</p>
           </div>
           <div class="stat-card stat-card-wide">
-            <p class="stat-value" id="statAvgDay">0</p>
+            <p class="stat-value" id="statAvgRub">0</p>
+            <p class="stat-value stat-value-sub" id="statAvgUsd" hidden>0</p>
             <p class="stat-label">Среднее в день</p>
           </div>
         </div>
