@@ -1,8 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap");
 
 /* ══════════════════════════════════════════════════════
    TOKENS
-   Палитра, шкалы и радиусы сняты с paste.trade.
    Имена намеренно новые: applyThemeParams из app.js
    пишет в --bg/--ink/--card, и если бы мы их
    использовали, тёмная тема Telegram снесла бы бумагу.
@@ -12,6 +11,7 @@
   /* Бумага */
   --paper: #f5f4f0;
   --paper-raised: #fefdfb;
+  --paper-sunken: #f0eee8;
 
   /* Чернила — приглушённый тёплый, не серый */
   --ink-950: #1a1a1a;
@@ -24,17 +24,35 @@
   --line-400: #c4c0b8;
 
   /* Семантика */
-  --green: #15803d;
-  --red: #b91c1c;
-  --link: #2563eb;
-  --red-bg: rgba(185, 28, 28, 0.08);
-  --green-bg: rgba(21, 128, 61, 0.08);
+  --green: #4f7d5c;
+  --red: #b0574f;
+  --link: #5b7fa6;
+  --red-bg: rgba(176, 87, 79, 0.09);
   --tint: rgba(26, 26, 26, 0.03);
   --tint-hover: rgba(26, 26, 26, 0.06);
 
-  /* Шрифты */
+  /* ── ПАЛИТРА КАТЕГОРИЙ ──────────────────────────────
+     Приглушённая, тёплая, подогнана под цвет бумаги.
+     Пара на каждый оттенок: заливка полоски и чернила
+     для текста бейджа (он должен читаться, поэтому
+     темнее). Меняешь тут — меняется везде.
+     ─────────────────────────────────────────────────── */
+  --c-green:  #6f9c78;  --c-green-ink:  #3f6b4c;  --c-green-bg:  rgba(111, 156, 120, 0.15);
+  --c-blue:   #6b8fb5;  --c-blue-ink:   #3f6187;  --c-blue-bg:   rgba(107, 143, 181, 0.16);
+  --c-car:    #b8845c;  --c-car-ink:    #8a5a34;  --c-car-bg:    rgba(184, 132, 92, 0.17);
+  --c-purple: #8b7db0;  --c-purple-ink: #5f5285;  --c-purple-bg: rgba(139, 125, 176, 0.16);
+  --c-pink:   #bd8199;  --c-pink-ink:   #8e546e;  --c-pink-bg:   rgba(189, 129, 153, 0.16);
+  --c-red:    #c1746c;  --c-red-ink:    #944a43;  --c-red-bg:    rgba(193, 116, 108, 0.16);
+  --c-yellow: #d0a95e;  --c-yellow-ink: #8a681f;  --c-yellow-bg: rgba(208, 169, 94, 0.20);
+  --c-gray:   #a49a90;  --c-gray-ink:   #6f665e;  --c-gray-bg:   rgba(164, 154, 144, 0.16);
+
+  /* Шрифты
+     Один шрифт на всё приложение — тот, которым набрана
+     история расходов. Если захочешь вернуть моноширинные
+     цифры: --num: "Geist Mono", monospace; и добавь
+     &family=Geist+Mono:wght@400;500;600;700 в @import сверху. */
   --font: "Geist", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
-  --mono: "Geist Mono", "SF Mono", Menlo, Consolas, monospace;
+  --num: var(--font);
 
   /* Типографика */
   --t-2xs: 11px;
@@ -79,16 +97,18 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Цифры везде моноширинные и одинаковой ширины —
-   суммы в колонку перестают "плясать" */
+/* Один шрифт везде, но цифры — табличные,
+   чтобы суммы в колонку не «плясали» */
 .history-amount,
 .cat-sum,
+.cat-share,
 .cat-detail-amount,
 .cat-detail-date,
 .stat-value,
 .amount-hint,
-.history-date {
-  font-family: var(--mono);
+.history-date,
+#generalAmount {
+  font-family: var(--num);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
 }
@@ -109,12 +129,63 @@ body {
 .nav-inner {
   max-width: var(--container);
   margin: 0 auto;
+}
+
+/* ── Переключатель валюты ── */
+
+.cur-switch {
+  display: flex;
+  gap: 4px;
+  padding: 10px 16px 0;
+}
+
+.cur-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: var(--paper-sunken);
+  border: 1px solid transparent;
+  border-radius: var(--r-2);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--ink-500);
+  transition: background var(--dur) var(--ease),
+              color var(--dur) var(--ease),
+              border-color var(--dur) var(--ease);
+}
+
+.cur-btn .cur-sign {
+  font-size: var(--t-sm);
+  font-weight: 700;
+}
+
+.cur-btn:hover:not(:disabled):not(.active) {
+  color: var(--ink-700);
+}
+
+.cur-btn.active {
+  background: var(--paper-raised);
+  border-color: var(--line-300);
+  color: var(--ink-950);
+}
+
+.cur-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Вкладки ── */
+
+.nav-tabs {
   display: flex;
 }
 
 .nav-tab {
   flex: 1;
-  padding: 14px 0;
+  padding: 13px 0;
   background: none;
   border: none;
   border-radius: 0;
@@ -192,6 +263,13 @@ body {
   color: var(--ink-950);
 }
 
+.brand-sub {
+  font-size: var(--t-xs);
+  font-weight: 500;
+  color: var(--ink-500);
+  margin-top: 1px;
+}
+
 .hero-actions {
   display: flex;
   align-items: center;
@@ -201,6 +279,27 @@ body {
 .grid {
   display: grid;
   gap: 20px;
+}
+
+/* Значок валюты рядом с заголовками */
+.cur-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  border-radius: var(--r-pill);
+  background: var(--c-gray-bg);
+  color: var(--ink-700);
+  font-size: var(--t-sm);
+  font-weight: 700;
+  line-height: 1;
+}
+
+body[data-currency="USD"] .cur-chip {
+  background: var(--c-green-bg);
+  color: var(--c-green-ink);
 }
 
 /* ══════════════════════════════════════════════════════
@@ -215,7 +314,7 @@ body {
   padding: 20px;
 }
 
-/* Заголовки секций — капслочные метки, как в референсе */
+/* Заголовки секций — капслочные метки */
 h2 {
   margin: 0 0 16px;
   font-size: var(--t-2xs);
@@ -264,16 +363,10 @@ select {
               box-shadow var(--dur) var(--ease);
 }
 
-/* Сумма — моноширинная прямо в поле ввода */
-#generalAmount {
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums;
-}
-
 input:focus,
 select:focus {
   border-color: var(--link);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 3px rgba(91, 127, 166, 0.18);
 }
 
 input::placeholder {
@@ -373,8 +466,7 @@ button:active {
 .history-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 }
 
 .history-list {
@@ -433,16 +525,15 @@ button:active {
   white-space: nowrap;
 }
 
-/* Приглушённые тона: неоновые пастели с тёмной темы
-   на бумаге выглядели бы грязно */
-.badge-green  { background: rgba(21, 128, 61, 0.09);  color: #15803d; }
-.badge-blue   { background: rgba(29, 78, 216, 0.09);  color: #1d4ed8; }
-.badge-car    { background: rgba(180, 83, 9, 0.10);   color: #b45309; }
-.badge-purple { background: rgba(109, 40, 217, 0.09); color: #6d28d9; }
-.badge-pink   { background: rgba(190, 24, 93, 0.09);  color: #be185d; }
-.badge-red    { background: rgba(185, 28, 28, 0.09);  color: #b91c1c; }
-.badge-yellow { background: rgba(161, 98, 7, 0.10);   color: #a16207; }
-.badge-gray   { background: rgba(115, 106, 97, 0.10); color: #736a61; }
+/* Бейджи — на общей палитре из :root */
+.badge-green  { background: var(--c-green-bg);  color: var(--c-green-ink);  }
+.badge-blue   { background: var(--c-blue-bg);   color: var(--c-blue-ink);   }
+.badge-car    { background: var(--c-car-bg);    color: var(--c-car-ink);    }
+.badge-purple { background: var(--c-purple-bg); color: var(--c-purple-ink); }
+.badge-pink   { background: var(--c-pink-bg);   color: var(--c-pink-ink);   }
+.badge-red    { background: var(--c-red-bg);    color: var(--c-red-ink);    }
+.badge-yellow { background: var(--c-yellow-bg); color: var(--c-yellow-ink); }
+.badge-gray   { background: var(--c-gray-bg);   color: var(--c-gray-ink);   }
 
 .history-note {
   font-size: var(--t-sm);
@@ -492,6 +583,12 @@ button:active {
   gap: 14px;
 }
 
+.stats-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .month-nav {
   display: flex;
   align-items: center;
@@ -537,17 +634,27 @@ button:active {
   border: var(--border);
   border-radius: var(--r-4);
   padding: 14px 16px;
+  min-width: 0;
+}
+
+/* Карточка «Всего» слегка выделена тёплой заливкой */
+.stat-card-total {
+  background: var(--paper-sunken);
+  border-color: var(--line-300);
 }
 
 .stat-value {
-  font-size: var(--t-2xl);
+  font-size: var(--t-xl);
   font-weight: 600;
   color: var(--ink-950);
   letter-spacing: -0.02em;
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.stat-purple { color: var(--ink-500); }
+.stat-muted { color: var(--ink-500); }
 
 .stat-label {
   font-size: var(--t-2xs);
@@ -588,15 +695,27 @@ button:active {
 }
 
 .cat-name {
+  display: flex;
+  align-items: center;
   font-size: var(--t-sm);
   font-weight: 600;
   color: var(--ink-950);
+  min-width: 0;
+}
+
+/* Точка цвета категории — связывает строку с полоской ниже */
+.cat-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 7px;
+  flex-shrink: 0;
 }
 
 .cat-chevron {
   display: inline-block;
   font-size: 9px;
-  margin-left: 3px;
+  margin-left: 4px;
   color: var(--line-400);
   transition: transform var(--dur) var(--ease);
 }
@@ -608,8 +727,17 @@ button:active {
 .cat-sum-group {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   flex-shrink: 0;
+}
+
+.cat-share {
+  font-size: var(--t-2xs);
+  font-weight: 600;
+  color: var(--ink-500);
+  background: var(--tint);
+  padding: 1px 6px;
+  border-radius: var(--r-pill);
 }
 
 .cat-sum {
@@ -642,8 +770,8 @@ button:active {
 }
 
 .cat-bar {
-  height: 5px;
-  background: var(--line-200);
+  height: 6px;
+  background: var(--paper-sunken);
   border-radius: var(--r-pill);
   overflow: hidden;
 }
@@ -654,14 +782,15 @@ button:active {
   transition: width 300ms var(--ease);
 }
 
-.bar-green  { background: #15803d; }
-.bar-blue   { background: #1d4ed8; }
-.bar-car    { background: #b45309; }
-.bar-purple { background: #6d28d9; }
-.bar-pink   { background: #be185d; }
-.bar-red    { background: #b91c1c; }
-.bar-yellow { background: #a16207; }
-.bar-gray   { background: #a39a90; }
+/* Полоски и точки — та же палитра */
+.bar-green,  .dot-green  { background: var(--c-green);  }
+.bar-blue,   .dot-blue   { background: var(--c-blue);   }
+.bar-car,    .dot-car    { background: var(--c-car);    }
+.bar-purple, .dot-purple { background: var(--c-purple); }
+.bar-pink,   .dot-pink   { background: var(--c-pink);   }
+.bar-red,    .dot-red    { background: var(--c-red);    }
+.bar-yellow, .dot-yellow { background: var(--c-yellow); }
+.bar-gray,   .dot-gray   { background: var(--c-gray);   }
 
 .cat-details {
   max-height: 0;
@@ -742,6 +871,10 @@ button:active {
     padding: 32px 24px 40px;
   }
 
+  .cur-switch {
+    padding: 12px 24px 0;
+  }
+
   .brand h1,
   .history-header h1,
   .stats-header h1 {
@@ -750,6 +883,10 @@ button:active {
 
   .stats-summary {
     grid-template-columns: repeat(4, 1fr);
+  }
+
+  .stat-value {
+    font-size: var(--t-2xl);
   }
 
   .stat-card-wide {

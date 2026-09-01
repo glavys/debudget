@@ -14,16 +14,32 @@
       <!-- ── Navigation ── -->
       <nav class="nav">
         <div class="nav-inner">
-          <button class="nav-tab active" data-tab="add" type="button">Добавить</button>
-          <button class="nav-tab" data-tab="history" type="button">История</button>
-          <button class="nav-tab" data-tab="stats" type="button">Статистика</button>
+          <!-- Переключатель валюты: рублёвые и долларовые траты
+               живут отдельно, но через одни и те же экраны -->
+          <div class="cur-switch" role="group" aria-label="Валюта">
+            <button class="cur-btn active" data-currency="RUB" type="button">
+              <span class="cur-sign">&#8381;</span> Рубли
+            </button>
+            <button class="cur-btn" data-currency="USD" type="button">
+              <span class="cur-sign">$</span> Доллары
+            </button>
+          </div>
+
+          <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="add" type="button">Добавить</button>
+            <button class="nav-tab" data-tab="history" type="button">История</button>
+            <button class="nav-tab" data-tab="stats" type="button">Статистика</button>
+          </div>
         </div>
       </nav>
 
       <!-- ══════════════ TAB: Добавить ══════════════ -->
       <div class="page tab-content active" id="tab-add">
         <header class="hero">
-          <div class="brand"><h1>DeBudget</h1></div>
+          <div class="brand">
+            <h1>DeBudget</h1>
+            <p class="brand-sub" id="brandSub">Рублёвые траты</p>
+          </div>
           <div class="hero-actions">
             <button id="exportBtn" class="ghost" type="button">Экспорт</button>
           </div>
@@ -31,14 +47,14 @@
 
         <div class="grid">
           <section class="card">
-            <h2>Новый расход</h2>
+            <h2 id="addTitle">Новый расход</h2>
             <form id="generalForm" class="form">
               <label>
                 Дата
                 <input type="date" id="generalDate" required />
               </label>
               <label>
-                Сумма
+                <span id="amountLabel">Сумма, &#8381;</span>
                 <input
                   type="text"
                   id="generalAmount"
@@ -51,7 +67,7 @@
               </label>
               <label>
                 Категория
-                <!-- Наполняется из CATEGORIES в app.js -->
+                <!-- Наполняется из CURRENCIES[...].categories в app.js -->
                 <select id="generalCategory" required></select>
               </label>
               <label>
@@ -69,6 +85,7 @@
       <div class="page tab-content" id="tab-history">
         <div class="history-header">
           <h1>История расходов</h1>
+          <span class="cur-chip" id="historyChip">&#8381;</span>
         </div>
 
         <div id="historyList" class="history-list">
@@ -79,7 +96,10 @@
       <!-- ══════════════ TAB: Статистика ══════════════ -->
       <div class="page tab-content" id="tab-stats">
         <div class="stats-header">
-          <h1>Статистика</h1>
+          <div class="stats-title-row">
+            <h1>Статистика</h1>
+            <span class="cur-chip" id="statsChip">&#8381;</span>
+          </div>
           <div class="month-nav">
             <button id="prevMonth" class="month-btn" type="button" aria-label="Предыдущий месяц">&larr;</button>
             <span id="currentMonth" class="month-label"></span>
@@ -88,12 +108,12 @@
         </div>
 
         <div class="stats-summary" id="statsSummary">
-          <div class="stat-card">
+          <div class="stat-card stat-card-total">
             <p class="stat-value" id="statTotal">0</p>
             <p class="stat-label">Всего</p>
           </div>
           <div class="stat-card">
-            <p class="stat-value stat-purple" id="statCount">0</p>
+            <p class="stat-value stat-muted" id="statCount">0</p>
             <p class="stat-label">Записей</p>
           </div>
           <div class="stat-card stat-card-wide">
